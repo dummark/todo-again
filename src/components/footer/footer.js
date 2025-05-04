@@ -1,24 +1,40 @@
-import React from 'react';
+import React, { Component } from 'react';
 import './footer.css';
 
-const Footer = () => {
-	return (
-		<footer className='footer'>
-			<span className='todo-count'>1 items left</span>
-			<ul className='filters'>
-				<li>
-					<button className='selected'>All</button>
-				</li>
-				<li>
-					<button>Active</button>
-				</li>
-				<li>
-					<button>Completed</button>
-				</li>
-			</ul>
-			<button className='clear-completed'>Clear completed</button>
-		</footer>
-	);
-};
+export default class Footer extends Component {
+	buttons = [
+		{ name: 'all', label: 'All' },
+		{ name: 'active', label: 'Active' },
+		{ name: 'complete', label: 'Complete' },
+	];
 
-export default Footer;
+	render() {
+		const { toDo, filter, onFilterChange, onDeleteComplete } = this.props;
+
+		const buttons = this.buttons.map(({ name, label }) => {
+			const isActive = filter === name;
+			const clazz = isActive ? 'selected' : '';
+			return (
+				<li key={name}>
+					<button
+						type='button'
+						className={clazz}
+						onClick={() => onFilterChange(name)}
+					>
+						{label}
+					</button>
+				</li>
+			);
+		});
+
+		return (
+			<footer className='footer'>
+				<span className='todo-count'>{toDo} items left</span>
+				<ul className='filters'>{buttons}</ul>
+				<button className='clear-completed' onClick={() => onDeleteComplete()}>
+					Clear completed
+				</button>
+			</footer>
+		);
+	}
+}

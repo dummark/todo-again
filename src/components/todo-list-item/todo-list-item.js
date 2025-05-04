@@ -1,28 +1,52 @@
 import React, { Component } from 'react';
-
+import { formatDistanceToNowStrict } from 'date-fns';
 import './todo-list-item.css';
 
 export default class TodoListItem extends Component {
 	state = {
-		complete: false,
+		localLabel: this.props.label,
 	};
 
-	onLabelClick = () => {
-		this.setState(({ complete }) => {
-			return {
-				complete: !complete,
-			};
-		});
+	onLocalLabelChange = e => {
+		this.setState({ localLabel: e.target.value });
+	};
+
+	onLocalSubmit = e => {
+		e.preventDefault();
+		this.props.onSubmit(this.state.localLabel);
+		this.props.onToggleEdit();
 	};
 
 	render() {
-		const { complete } = this.state;
-		const { label } = this.props;
+		const {
+			label,
+			onDeleted,
+			onToggleEdit,
+			onToggleComplete,
+			complete,
+			editing,
+			createTime,
+		} = this.props;
 
 		let classNames = '';
+		let isEdit = '';
 
 		if (complete) {
 			classNames += ' completed';
+		}
+
+		if (editing) {
+			classNames += ' editing';
+			isEdit = (
+				<form onSubmit={this.onLocalSubmit}>
+					<input
+						type='text'
+						onChange={this.onLocalLabelChange}
+						className='edit'
+						value={this.state.localLabel}
+					/>
+				</form>
+			);
 		}
 
 		return (
@@ -31,15 +55,18 @@ export default class TodoListItem extends Component {
 					<input
 						className='toggle'
 						type='checkbox'
-						onClick={this.onLabelClick}
+						onClick={onToggleComplete}
 					/>
 					<label>
 						<span className='description'>{label}</span>
-						<span className='created'>created 17 seconds ago</span>
+						<span className='created'>
+							created {formatDistanceToNowStrict(createTime)} ago
+						</span>
 					</label>
-					<button className='icon icon-edit'></button>
-					<button className='icon icon-destroy'></button>
+					<button className='icon icon-edit' onClick={onToggleEdit}></button>
+					<button className='icon icon-destroy' onClick={onDeleted}></button>
 				</div>
+				{isEdit}
 			</li>
 		);
 	}
